@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>M. Royo</title>
+<meta name="theme-color" content="#0a2540">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="M. Royo">
+<meta name="application-name" content="M. Royo">
+<meta name="description" content="Portal de herramientas M. Royo — Producción y Sueldo">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="manifest" href="./manifest.json">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#0a2540 0%,#1a3d6e 60%,#0e4d8a 100%);min-height:100vh;position:relative;color:#fff}
+body::before{content:'M. ROYO';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:110px;font-weight:900;color:rgba(255,255,255,0.06);z-index:0;pointer-events:none;white-space:nowrap;letter-spacing:18px}
+
+/* Vistas */
+.vista{display:none;position:relative;z-index:1;min-height:100vh}
+.vista.activa{display:block}
+
+/* Portal */
+#vista-portal{padding:32px 20px 60px;max-width:480px;margin:0 auto}
+.p-header{text-align:center;margin-bottom:40px}
+.p-header h1{font-size:2rem;font-weight:900;letter-spacing:4px;margin:16px 0 6px}
+.p-header p{color:#7dd3fc;font-size:.82rem;letter-spacing:2px;text-transform:uppercase}
+.app-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:22px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;margin-bottom:14px;transition:transform .15s,background .15s;-webkit-user-select:none;user-select:none}
+.app-card:active{transform:scale(.97);background:rgba(255,255,255,.13)}
+.app-icon{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.icon-prod{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.icon-sueldo{background:linear-gradient(135deg,#059669,#10b981)}
+.app-name{font-size:1.02rem;font-weight:800;margin-bottom:3px}
+.app-desc{font-size:.76rem;color:#94a3b8;line-height:1.4}
+.footer-p{text-align:center;margin-top:40px;color:rgba(255,255,255,.2);font-size:.7rem;letter-spacing:1px}
+
+/* Botón volver */
+.btn-back{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;border-radius:12px;padding:10px 16px;cursor:pointer;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);color:#7dd3fc;margin:14px 16px 4px;-webkit-user-select:none}
+
+/* Compartidos producción + sueldo */
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:20px;margin-bottom:14px;color:#fff}
+.campo{width:100%;padding:12px;border:2px solid rgba(56,189,248,.35);border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-size:1rem;outline:none;-webkit-appearance:none}
+.campo:focus{border-color:#38bdf8}
+.campo option{background:#1a3d6e;color:#fff}
+.campo::placeholder{color:rgba(255,255,255,.35)}
+.etiqueta{display:block;font-size:.72rem;font-weight:700;color:#7dd3fc;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.sub{color:#7dd3fc;font-size:.75rem;margin-top:4px}
+.sec-lbl{font-size:.68rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.sep{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.info{font-size:.72rem;color:#7dd3fc;margin-top:4px}
+.btn-c{width:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);color:#0a2540;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-n{width:100%;background:linear-gradient(90deg,#f97316,#fb923c);color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer}
+.btn-verde{width:100%;background:linear-gradient(90deg,#059669,#10b981);color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer}
+.btn-t{background:none;border:none;color:#38bdf8;font-weight:600;font-size:.88rem;cursor:pointer;padding:0}
+.btn-x{background:none;border:none;color:#f87171;cursor:pointer;padding:6px}
+.res-v{background:linear-gradient(135deg,#059669,#10b981);border-radius:20px;padding:22px;margin-bottom:14px}
+.res-a{background:linear-gradient(135deg,#d97706,#f59e0b);border-radius:20px;padding:22px;margin-bottom:14px}
+.acum{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);border-radius:12px;padding:14px;margin-bottom:14px}
+.fila{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.chip{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);border-radius:10px;padding:10px;text-align:center;color:#38bdf8;font-weight:700;font-size:.95rem}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.modal-box{background:linear-gradient(135deg,#0a2540,#1a3d6e);border:1px solid rgba(56,189,248,.4);border-radius:20px;padding:26px;width:100%;max-width:420px}
+.btn-cancel{flex:1;padding:12px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;font-weight:600;cursor:pointer;font-size:.95rem}
+.row-btns{display:flex;gap:10px}
+.per-det{font-size:.77rem;color:#cbd5e1;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between}
+/* Sueldo resultado */
+.linea{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:.85rem}
+.l-lbl{color:#cbd5e1;flex:1;min-width:0}
+.l-val{font-weight:600;white-space:nowrap;flex-shrink:0}
+.l-desc .l-val{color:#fca5a5}
+.total-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0 2px;font-weight:800;font-size:.95rem}
+.neto-box{background:linear-gradient(135deg,#059669,#10b981);border-radius:18px;padding:22px;text-align:center;margin-bottom:14px}
+.neto-lbl{font-size:.72rem;letter-spacing:2px;opacity:.85;margin-bottom:8px;text-transform:uppercase}
+.neto-monto{font-size:2.6rem;font-weight:900;margin-bottom:6px;word-break:break-word}
+.neto-sub{font-size:.75rem;opacity:.8;line-height:1.5}
+.hist-row{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;border-radius:12px;padding:12px 22px;font-weight:700;font-size:.9rem;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,.4);white-space:nowrap;display:none}
+/* Splash */
+#splash{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0a2540,#1a3d6e,#0e4d8a);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+#splash.hide{opacity:0;pointer-events:none}
+#splash h1{color:#fff;font-size:2rem;font-weight:900;letter-spacing:6px;margin:20px 0 8px}
+#splash p{color:#7dd3fc;font-size:.85rem;letter-spacing:2px}
+.dots{display:flex;gap:8px;margin-top:36px}
+.dot{width:10px;height:10px;border-radius:50%;background:#38bdf8;animation:blink 1.2s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<!-- BANNER INSTALAR PWA -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999998;background:linear-gradient(135deg,#0a2540,#1a3d6e);border-top:1px solid rgba(56,189,248,.4);padding:14px 18px;display:none;align-items:center;gap:12px">
+  <div style="flex:1;min-width:0">
+    <div style="font-size:.88rem;font-weight:700;color:#fff">📲 Instalar M. Royo</div>
+    <div style="font-size:.72rem;color:#7dd3fc;margin-top:2px">Agregá el acceso directo a tu pantalla de inicio</div>
+  </div>
+  <button id="pwa-install-btn" style="background:linear-gradient(90deg,#0ea5e9,#38bdf8);color:#0a2540;border:none;border-radius:10px;padding:9px 16px;font-size:.85rem;font-weight:700;cursor:pointer;flex-shrink:0">Instalar</button>
+  <button onclick="document.getElementById('pwa-banner').style.display='none'" style="background:none;border:none;color:#64748b;cursor:pointer;padding:4px;font-size:1.2rem;flex-shrink:0">✕</button>
+</div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <canvas id="splash-c" width="140" height="140"></canvas>
+  <h1>M. ROYO</h1>
+  <p>PORTAL DE APPS</p>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<!-- ═══ PORTAL ═══ -->
+<div id="vista-portal" class="vista activa">
+  <div class="p-header">
+    <canvas id="header-c" width="88" height="88" style="border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.4);display:block;margin:0 auto"></canvas>
+    <h1>M. ROYO</h1>
+    <p>Portal de herramientas</p>
+  </div>
+  <div class="app-card" onclick="ir('prod')">
+    <div class="app-icon icon-prod"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg></div>
+    <div style="flex:1"><div class="app-name">Producción de Caños</div><div class="app-desc">Calculá producción diaria, próxima escala y cerrá períodos quincenales</div></div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.6"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+  <div class="app-card" onclick="ir('sueldo')">
+    <div class="app-icon icon-sueldo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
+    <div style="flex:1"><div class="app-name">Calculadora de Sueldo</div><div class="app-desc">Haberes, descuentos, antigüedad y sueldo neto</div></div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.6"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+  <div class="footer-p">M. ROYO · HERRAMIENTAS INTERNAS</div>
+  <div id="ios-install-tip" style="display:none;margin:0 0 24px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);border-radius:16px;padding:16px;text-align:center">
+    <div style="font-size:.85rem;font-weight:700;color:#38bdf8;margin-bottom:6px">📲 Instalar como App</div>
+    <div style="font-size:.75rem;color:#94a3b8;line-height:1.6">Tocá <strong style="color:#7dd3fc">Compartir</strong> (ícono <span style="font-size:1rem">⎋</span>) y luego<br><strong style="color:#7dd3fc">"Agregar a pantalla de inicio"</strong></div>
+  </div>
+</div>
+
+<!-- ═══ PRODUCCIÓN ═══ -->
+<div id="vista-prod" class="vista">
+  <button class="btn-back" onclick="ir('portal')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Portal principal
+  </button>
+  <div style="padding:8px 16px 60px">
+    <div class="card">
+      <h1 style="font-size:1.6rem;font-weight:900;display:flex;align-items:center;gap:10px">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>
+        Producción M Royo
+      </h1>
+      <p class="sub">Tabla vigente: 01/01/2026 · Valor Base $4.108,22</p>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:16px;color:#38bdf8">⚙️ Calcular Producción</h2>
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- Tipo de jornada -->
+        <div>
+          <label class="etiqueta">Tipo de Jornada</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+            <button id="btn-jornada-normal" onclick="selJornada('normal')" style="padding:10px;border-radius:10px;border:2px solid #38bdf8;background:rgba(56,189,248,.15);color:#38bdf8;font-weight:700;font-size:.85rem;cursor:pointer">
+              ⚙️ Normal
+            </button>
+            <button id="btn-jornada-base" onclick="selJornada('base')" style="padding:10px;border-radius:10px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);font-weight:700;font-size:.85rem;cursor:pointer">
+              🔄 Base / Cambio
+            </button>
+          </div>
+          <p id="jornada-hint" class="info" style="margin-top:6px">Producción normal con caños.</p>
+        </div>
+
+        <!-- Campos producción (ocultos en jornada base) -->
+        <div id="campos-produccion">
+          <div>
+            <label class="etiqueta">Diámetro</label>
+            <select id="sel-diam" class="campo">
+              <option value="114.3">114,3 mm</option><option value="168.3">168,3 mm</option>
+              <option value="219.1">219,1 mm</option><option value="273.1">273,1 mm</option>
+              <option value="323.8" selected>323,8 mm</option>
+            </select>
+            <p id="rango" class="info">Rango válido: 21 - 42 caños/hora</p>
+          </div>
+          <div class="g2" style="margin-top:14px">
+            <div><label class="etiqueta">Caños Totales</label><input id="inp-canos" type="number" inputmode="numeric" class="campo" placeholder="250"></div>
+            <div><label class="etiqueta">Horas Trabajadas</label><input id="inp-horas" type="number" inputmode="decimal" step="0.5" class="campo" placeholder="8"></div>
+          </div>
+          <div id="chip-cph" style="display:none;margin-top:8px" class="chip"></div>
+        </div>
+
+        <!-- Info jornada base -->
+        <div id="info-base" style="display:none;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:.8rem;color:#fbbf24;font-weight:700;margin-bottom:4px">🔄 Jornada Base — Cambio de Medida</div>
+          <div style="font-size:.75rem;color:rgba(255,255,255,.6)">Se registra la jornada con valor base sin producción de caños.</div>
+        </div>
+
+        <div><label class="etiqueta">Fecha</label><input id="inp-fecha" type="date" class="campo"></div>
+      </div>
+    </div>
+    <div id="resultado"></div>
+    <div id="periodo-actual"></div>
+    <div id="periodos-guardados"></div>
+  </div>
+  <div id="modal" style="display:none"></div>
+</div>
+
+<!-- ═══ SUELDO ═══ -->
+<div id="vista-sueldo" class="vista">
+  <button class="btn-back" onclick="ir('portal')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Portal principal
+  </button>
+  <div style="padding:8px 16px 60px">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:14px">
+        <canvas id="logo-sueldo" width="52" height="52" style="border-radius:14px;flex-shrink:0"></canvas>
+        <div>
+          <div style="font-size:1.5rem;font-weight:900;letter-spacing:2px">M. ROYO</div>
+          <div class="sub">Calculadora de Sueldo · 2026</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1rem;font-weight:700;color:#38bdf8;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Categoría CCT 260/75
+      </h2>
+      <p class="sub" style="margin-bottom:12px">Vigente desde 01/02/2026 · UOMRA Rama 17</p>
+      <label class="etiqueta">Seleccioná tu categoría</label>
+      <select id="sel-categoria" class="campo" onchange="aplicarCategoria()" style="margin-bottom:10px">
+        <option value="">— Elegir categoría —</option>
+        <optgroup label="Categorías Generales">
+          <option value="4108.22">Ingresante — $4.108,22/h</option>
+          <option value="4450.23">Operario Calificado — $4.450,23/h</option>
+          <option value="4796.27">Medio Oficial — $4.796,27/h</option>
+          <option value="5130.90">Operario Especializado — $5.130,90/h</option>
+          <option value="5424.41">Operario Especializado Múltiple — $5.424,41/h</option>
+          <option value="5675.08">Oficial — $5.675,08/h</option>
+          <option value="6112.95">Oficial Múltiple — $6.112,95/h</option>
+        </optgroup>
+        <optgroup label="Operadores CNC">
+          <option value="6112.95">Oficial Superior CNC — $6.112,95/h</option>
+          <option value="6541.35">Oficial Múltiple Superior CNC — $6.541,35/h</option>
+        </optgroup>
+      </select>
+      <div id="cat-info" style="display:none;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);border-radius:10px;padding:10px 14px;font-size:.8rem;color:#7dd3fc"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <h2 style="font-size:1rem;font-weight:700;color:#38bdf8;margin:0;display:flex;align-items:center;gap:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          Configuración
+        </h2>
+        <button class="btn-t" onclick="toggleCfg()" id="cfg-btn">▼ Ver</button>
+      </div>
+      <p class="sub">Valores base, porcentajes y descuentos fijos</p>
+      <div id="cfg-panel" style="display:none;margin-top:18px">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div class="sec-lbl">Valores hora</div>
+            <div class="g2">
+              <div><label class="etiqueta">Hora Normal ($)</label><input id="cfg-vh" type="number" class="campo" value="5458.65"></div>
+              <div><label class="etiqueta">Hora Feriado ($)</label><input id="cfg-vhf" type="number" class="campo" value="8000.00"></div>
+            </div>
+          </div>
+          <div>
+            <div class="sec-lbl">Antigüedad y premios</div>
+            <div class="g2">
+              <div><label class="etiqueta">Años Trabajados</label><input id="cfg-anios" type="number" class="campo" value="15"></div>
+              <div><label class="etiqueta">Premio Asistencia ($)</label><input id="cfg-pa" type="number" class="campo" value="28782.00"></div>
+            </div>
+            <div style="margin-top:10px"><label class="etiqueta">PAP — Premio Adicional Producción ($)</label><input id="cfg-pap" type="number" class="campo" value="85862.70"></div>
+            <p class="sub" style="margin-top:6px">H. extras se calculan con antigüedad + PAP prorrateado</p>
+          </div>
+          <div>
+            <div class="sec-lbl">Descuentos porcentuales</div>
+            <div class="g3">
+              <div><label class="etiqueta">Jubilación %</label><input id="cfg-jub" type="number" class="campo" value="11"></div>
+              <div><label class="etiqueta">Ley 19032 %</label><input id="cfg-ley" type="number" class="campo" value="3"></div>
+              <div><label class="etiqueta">Ob.Social %</label><input id="cfg-os" type="number" class="campo" value="3"></div>
+            </div>
+            <div style="margin-top:10px"><label class="etiqueta">Sindicato %</label><input id="cfg-sind" type="number" class="campo" value="2.5"></div>
+          </div>
+          <div>
+            <div class="sec-lbl">Descuentos fijos</div>
+            <div class="g3">
+              <div><label class="etiqueta">Comedor ($)</label><input id="cfg-com" type="number" class="campo" value="25598.30"></div>
+              <div><label class="etiqueta">Seg.Vida ($)</label><input id="cfg-sv" type="number" class="campo" value="6579.24"></div>
+              <div><label class="etiqueta">Seguro ($)</label><input id="cfg-seg" type="number" class="campo" value="14000.00"></div>
+            </div>
+          </div>
+          <button class="btn-c" onclick="guardarCfg()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Guardar Configuración
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1rem;font-weight:700;color:#38bdf8;display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+        Datos del Período
+      </h2>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div class="sec-lbl">Horas</div>
+          <div class="g2">
+            <div><label class="etiqueta">Normales</label><input id="d-hn" type="number" inputmode="numeric" class="campo" value="90"></div>
+            <div><label class="etiqueta">Feriado</label><input id="d-hf" type="number" inputmode="numeric" class="campo" value="0"></div>
+          </div>
+          <div class="g2" style="margin-top:10px">
+            <div><label class="etiqueta">Extra 50%</label><input id="d-he50" type="number" inputmode="numeric" class="campo" value="0"></div>
+            <div><label class="etiqueta">Extra 100%</label><input id="d-he100" type="number" inputmode="numeric" class="campo" value="0"></div>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div>
+          <div class="sec-lbl">Adicionales</div>
+          <div><label class="etiqueta">Premio Asist.Prod ($)</label><input id="d-pap" type="number" class="campo" value="111290.00"></div>
+        </div>
+        <div class="sep"></div>
+        <div>
+          <div class="sec-lbl">Deducciones del período</div>
+          <div class="g2">
+            <div><label class="etiqueta">Anticipo Quincena ($)</label><input id="d-anticipo" type="number" class="campo" value="175000.00"></div>
+            <div><label class="etiqueta">Otro Descuento ($)</label><input id="d-otro" type="number" class="campo" value="0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-c" style="margin-bottom:14px" onclick="calcularSueldo()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="14"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/></svg>
+      Calcular Sueldo
+    </button>
+    <div id="sueldo-resultado"></div>
+    <div id="sueldo-historial"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══ LOGO ═══
+var LOGO="data:image/jpeg;base64,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";
+function drawLogo(id,sz){
+  var img=new Image();
+  img.onload=function(){
+    var c=document.getElementById(id);if(!c)return;
+    var ctx=c.getContext("2d"),r=sz*.18;
+    ctx.save();ctx.beginPath();ctx.moveTo(r,0);ctx.arcTo(sz,0,sz,sz,r);ctx.arcTo(sz,sz,0,sz,r);ctx.arcTo(0,sz,0,0,r);ctx.arcTo(0,0,sz,0,r);ctx.closePath();ctx.clip();
+    ctx.drawImage(img,0,0,sz,sz);ctx.restore();
+  };
+  img.onerror=function(){
+    var c=document.getElementById(id);if(!c)return;
+    var ctx=c.getContext("2d"),g=ctx.createLinearGradient(0,0,sz,sz);
+    g.addColorStop(0,"#0ea5e9");g.addColorStop(1,"#38bdf8");
+    ctx.fillStyle=g;ctx.fillRect(0,0,sz,sz);
+    ctx.fillStyle="#0a2540";ctx.font="bold "+(sz*.35)+"px sans-serif";
+    ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("MR",sz/2,sz/2);
+  };
+  img.src=LOGO;
+}
+drawLogo("splash-c",140); drawLogo("header-c",88); drawLogo("logo-sueldo",52);
+
+// ═══ PWA SETUP ═══
+(function(){
+  // 1. Generar ícono PNG desde canvas usando el LOGO existente
+  function generarIconPNG(size, callback){
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement("canvas");
+      c.width=size; c.height=size;
+      var ctx=c.getContext("2d");
+      // Fondo gradiente azul
+      var g=ctx.createLinearGradient(0,0,size,size);
+      g.addColorStop(0,"#0a2540"); g.addColorStop(1,"#1a3d6e");
+      ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
+      // Logo centrado con margen
+      var margin=size*0.08;
+      ctx.drawImage(img,margin,margin,size-margin*2,size-margin*2);
+      callback(c.toDataURL("image/png"));
+    };
+    img.onerror=function(){
+      // Fallback: ícono MR
+      var c=document.createElement("canvas");
+      c.width=size; c.height=size;
+      var ctx=c.getContext("2d");
+      var g=ctx.createLinearGradient(0,0,size,size);
+      g.addColorStop(0,"#0ea5e9"); g.addColorStop(1,"#38bdf8");
+      ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
+      ctx.fillStyle="#0a2540";
+      ctx.font="bold "+(size*0.35)+"px sans-serif";
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText("MR",size/2,size/2);
+      callback(c.toDataURL("image/png"));
+    };
+    img.src=LOGO;
+  }
+
+  // 2. Service Worker con archivo fijo (evita que el ícono desaparezca)
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register('./sw.js', {scope:"./"})
+      .then(function(reg){ console.log("SW registrado:", reg.scope); })
+      .catch(function(err){ console.log("SW error:", err); });
+  }
+
+  // 3. Banner "Instalar" para Chrome Android (beforeinstallprompt)
+  var deferredPrompt=null;
+  window.addEventListener("beforeinstallprompt",function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    var banner=document.getElementById("pwa-banner");
+    banner.style.display="flex";
+    document.getElementById("pwa-install-btn").addEventListener("click",function(){
+      banner.style.display="none";
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){deferredPrompt=null;});
+    });
+  });
+  window.addEventListener("appinstalled",function(){
+    document.getElementById("pwa-banner").style.display="none";
+    deferredPrompt=null;
+  });
+})();
+
+  // Mostrar tip de instalación en iOS si no está instalado
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone=window.navigator.standalone===true||window.matchMedia("(display-mode: standalone)").matches;
+  if(isIOS&&!isStandalone){
+    document.getElementById("ios-install-tip").style.display="block";
+  }
+
+// ═══ SPLASH ═══
+window.addEventListener("load",function(){
+  setTimeout(function(){
+    var s=document.getElementById("splash");s.classList.add("hide");
+    setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},600);
+  },1800);
+});
+
+// ═══ NAVEGACION ═══
+var prodListo=false;
+function ir(v){
+  document.querySelectorAll(".vista").forEach(function(x){x.classList.remove("activa");});
+  document.getElementById("vista-"+v).classList.add("activa");
+  if(v==="prod"&&!prodListo) initProd();
+  window.scrollTo(0,0);
+}
+
+// ═══ UTILS COMPARTIDOS ═══
+function el(id){return document.getElementById(id);}
+function fmt(n){return new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",minimumFractionDigits:2}).format(n);}
+function hoy(){return new Date().toISOString().split("T")[0];}
+function setCk(k,v){var d=new Date();d.setFullYear(d.getFullYear()+10);document.cookie=k+"="+encodeURIComponent(v)+";expires="+d.toUTCString()+";path=/;SameSite=Lax";}
+function getCk(k){var p=document.cookie.split(";");for(var i=0;i<p.length;i++){var c=p[i].trim();if(c.indexOf(k+"=")===0)return decodeURIComponent(c.substring(k.length+1));}return null;}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function load(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+// Migración one-shot: mueve datos de cookies viejas a localStorage y las limpia
+(function(){['mr_h','mr_p','configSueldo','historialSueldo'].forEach(function(k){var ck=getCk(k);if(ck){if(!localStorage.getItem(k)){localStorage.setItem(k,ck);}document.cookie=k+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';}});})();
+var toastT=null;
+function toast(msg){clearTimeout(toastT);var t=el("toast");t.textContent=msg;t.style.display="block";toastT=setTimeout(function(){t.style.display="none";},3000);}
+
+// ═══ PRODUCCION ═══
+function initProd(){
+  if(prodListo)return; prodListo=true;
+  var BASE=4514,INCR=1031.51;
+  var MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  function genT(a,b){var t=[];for(var c=a;c<=b;c++)t.push({c:c,b:Math.round((BASE+(c-a)*INCR)*100)/100});return t;}
+  var t114=genT(31,80);
+  var TB={"114.3":t114,"168.3":t114,"219.1":genT(29,70),"273.1":genT(26,73),"323.8":genT(21,55)};
+  var H=load("mr_h")||[], P=load("mr_p")||[];
+  var IS='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+  var IT='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>';
+
+  function calc(){
+    var c=parseFloat(el("inp-canos").value),h=parseFloat(el("inp-horas").value);
+    if(!c||!h||isNaN(c)||isNaN(h))return null;
+    var cph=c/h,cphR=Math.round(cph),tab=TB[el("sel-diam").value],mn=tab[0].c;
+    if(cphR<mn)return{cph:cph.toFixed(2),total:BASE,alerta:"No llegaste al mínimo ("+mn+" c/h).",proxEscala:null};
+    var base=tab[tab.length-1].b,proxEscala=null;
+    for(var i=0;i<tab.length;i++){
+      if(cphR<tab[i].c){
+        base=i>0?tab[i-1].b:tab[0].b;
+        var umbral=(tab[i].c-0.5)*h;
+        var faltanCanos=Math.ceil(umbral)-c;
+        proxEscala={cph:tab[i].c,canos:faltanCanos,valor:tab[i].b};
+        break;
+      }
+    }
+    return{cph:cph.toFixed(2),total:base,alerta:null,proxEscala:proxEscala};
+  }
+
+  function updRes(){
+    var c=parseFloat(el("inp-canos").value),h=parseFloat(el("inp-horas").value),ch=el("chip-cph");
+    if(c&&h&&!isNaN(c)&&!isNaN(h)){ch.textContent="⚡ Caños/hora: "+(c/h).toFixed(2);ch.style.display="block";}else ch.style.display="none";
+    var r=calc(),d=el("resultado");
+    if(!r){d.innerHTML="";return;}
+    var proximaHtml="";
+    if(r.proxEscala){
+      var n=r.proxEscala.canos;
+      var amarillo=n<=5;
+      proximaHtml='<div style="background:'+(amarillo?"rgba(250,204,21,.15)":"rgba(255,255,255,.07)")+';border:1px solid '+(amarillo?"rgba(250,204,21,.4)":"rgba(255,255,255,.12)")+';border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">'
+        +'<div style="font-size:.78rem;color:rgba(255,255,255,.7)">'+(amarillo?"🎯":"📏")+' Próxima escala ('+r.proxEscala.cph+' c/h)</div>'
+        +'<div style="font-size:.85rem;font-weight:700;color:'+(amarillo?"#fde047":"rgba(255,255,255,.85)")+'">faltan '+n+' caño'+(n!==1?'s':'')+'</div>'
+        +'</div>';
+    } else if(!r.alerta){
+      proximaHtml='<div style="background:rgba(250,204,21,.1);border:1px solid rgba(250,204,21,.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;text-align:center;font-size:.78rem;color:#fde047">🏆 ¡Escala máxima!</div>';
+    }
+    d.innerHTML=proximaHtml
+      +'<div class="'+(r.alerta?"res-a":"res-v")+'">'
+      +'<div style="margin-bottom:6px"><div style="font-size:.75rem;opacity:.8">CAÑOS POR HORA</div><div style="font-size:2rem;font-weight:900">'+r.cph+'</div></div>'
+      +(r.alerta?'<div style="background:rgba(0,0,0,.18);border-radius:10px;padding:10px;margin-bottom:10px;font-size:.87rem">⚠️ '+r.alerta+'</div>':"")
+      +'<div style="border-top:1px solid rgba(255,255,255,.25);padding-top:12px;margin-bottom:16px"><div style="font-size:.75rem;opacity:.8">TOTAL A COBRAR</div><div style="font-size:2.4rem;font-weight:900">'+fmt(r.total)+'</div></div>'
+      +'<button class="btn-c" onclick="guardarDia()">'+IS+' Guardar Producción</button></div>';
+  }
+  var jornadaTipo="normal";
+  window.selJornada=function(tipo){
+    jornadaTipo=tipo;
+    var btnN=el("btn-jornada-normal"),btnB=el("btn-jornada-base");
+    if(tipo==="normal"){
+      btnN.style.borderColor="#38bdf8";btnN.style.background="rgba(56,189,248,.15)";btnN.style.color="#38bdf8";
+      btnB.style.borderColor="rgba(255,255,255,.15)";btnB.style.background="rgba(255,255,255,.05)";btnB.style.color="rgba(255,255,255,.5)";
+      el("campos-produccion").style.display="block";
+      el("info-base").style.display="none";
+      el("jornada-hint").textContent="Producción normal con caños.";
+      el("resultado").innerHTML="";
+    } else {
+      btnB.style.borderColor="#fbbf24";btnB.style.background="rgba(251,191,36,.15)";btnB.style.color="#fbbf24";
+      btnN.style.borderColor="rgba(255,255,255,.15)";btnN.style.background="rgba(255,255,255,.05)";btnN.style.color="rgba(255,255,255,.5)";
+      el("campos-produccion").style.display="none";
+      el("info-base").style.display="block";
+      el("jornada-hint").textContent="Sin producción — cobra solo la jornada base.";
+      el("resultado").innerHTML='<div class="res-v" style="background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)">'
+        +'<div style="margin-bottom:6px"><div style="font-size:.75rem;opacity:.8">JORNADA BASE</div><div style="font-size:2rem;font-weight:900">🔄 Cambio de Medida</div></div>'
+        +'<div style="border-top:1px solid rgba(255,255,255,.25);padding-top:12px;margin-bottom:16px"><div style="font-size:.75rem;opacity:.8">TOTAL A COBRAR</div><div style="font-size:2.4rem;font-weight:900">'+fmt(BASE)+'</div></div>'
+        +'<button class="btn-c" onclick="guardarDia()">'+IS+' Guardar Jornada Base</button></div>';
+    }
+  };
+  function updRango(){var tab=TB[el("sel-diam").value];el("rango").textContent="Rango válido: "+tab[0].c+" – "+tab[tab.length-1].c+" caños/hora";updRes();}
+  window.guardarDia=function(){
+    if(jornadaTipo==="base"){
+      H.push({id:Date.now(),fecha:el("inp-fecha").value||hoy(),tipo:"base",diam:"—",canos:0,horas:0,cph:"—",valor:BASE});
+      save("mr_h",H);el("inp-fecha").value=hoy();
+      el("resultado").innerHTML="";jornadaTipo="normal";window.selJornada("normal");
+      rPA();toast("✅ Jornada base guardada");return;
+    }
+    var r=calc();if(!r)return;
+    H.push({id:Date.now(),fecha:el("inp-fecha").value||hoy(),tipo:"normal",diam:el("sel-diam").value,canos:parseFloat(el("inp-canos").value),horas:parseFloat(el("inp-horas").value),cph:r.cph,valor:r.total});
+    save("mr_h",H);el("inp-canos").value="";el("inp-horas").value="";el("inp-fecha").value=hoy();updRes();rPA();toast("✅ Producción guardada");
+  };
+  window.elimDia=function(id){H=H.filter(function(h){return h.id!==id;});save("mr_h",H);rPA();};
+  window._vH=false;
+  function rPA(){var d=el("periodo-actual");if(!H.length){d.innerHTML="";return;}var a=H.reduce(function(s,h){return s+h.valor;},0);var vH=window._vH;var html='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:1rem;font-weight:700;color:#38bdf8">📋 Período Actual</h3><button class="btn-t" onclick="window._vH=!window._vH;rPA()">'+(vH?"Ocultar":"Ver")+' detalles</button></div><div class="acum"><div style="font-size:.7rem;color:#7dd3fc;margin-bottom:2px">TOTAL ACUMULADO</div><div style="font-size:2rem;font-weight:900;color:#38bdf8">'+fmt(a)+'</div><div style="font-size:.75rem;color:#7dd3fc;margin-top:3px">'+H.length+' día'+(H.length!==1?'s':'')+' registrado'+(H.length!==1?'s':'')+'</div></div>';if(vH){H.forEach(function(h){var esBase=h.tipo==="base";html+='<div class="fila"><div style="flex:1"><div style="font-weight:700;font-size:.9rem">'+new Date(h.fecha+"T00:00:00").toLocaleDateString("es-AR")+(esBase?' <span style="background:rgba(251,191,36,.2);color:#fbbf24;font-size:.65rem;padding:2px 6px;border-radius:5px;font-weight:700;margin-left:4px">BASE</span>':'')+'</div><div style="font-size:.73rem;color:#7dd3fc;margin-top:2px">'+(esBase?'🔄 Cambio de medida — sin producción':h.diam+'mm · '+h.canos+' c · '+h.horas+'h · '+h.cph+' c/h')+'</div><div style="font-weight:800;color:#34d399;margin-top:3px">'+fmt(h.valor)+'</div></div><button class="btn-x" onclick="elimDia('+h.id+')">'+IT+'</button></div>';});}html+='<button class="btn-n" onclick="abrirModal()">🔒 Cerrar Período</button></div>';d.innerHTML=html;}
+  window._vP=false;window._pO=null;
+  function rPer(){var d=el("periodos-guardados");if(!P.length){d.innerHTML="";return;}var vP=window._vP,pO=window._pO;var html='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:1rem;font-weight:700;color:#38bdf8">📁 Períodos Guardados</h3><button class="btn-t" onclick="window._vP=!window._vP;rPer()">'+(vP?"Ocultar":"Ver todos")+'</button></div>';if(vP){P.forEach(function(p){html+='<div class="fila" style="flex-direction:column;gap:8px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;width:100%"><div><div style="font-weight:800">'+p.nombre+'</div><div style="font-size:.73rem;color:#7dd3fc">'+p.fechaCierre+' · '+p.dias+' días</div><div style="font-weight:900;color:#34d399;font-size:1.05rem">'+fmt(p.total)+'</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><button class="btn-x" onclick="elimPer('+p.id+')">'+IT+'</button><button class="btn-t" style="font-size:.75rem" onclick="window._pO=window._pO==='+p.id+'?null:'+p.id+';rPer()">'+(pO===p.id?'Ocultar':'Detalle')+'</button></div></div>';if(pO===p.id){html+='<div style="width:100%;border-top:1px solid rgba(255,255,255,.1);padding-top:8px">';p.registros.forEach(function(r){var esBase=r.tipo==="base";html+='<div class="per-det"><span>'+new Date(r.fecha+"T00:00:00").toLocaleDateString("es-AR")+(esBase?' 🔄':' · '+r.cph+' c/h')+'</span><span style="color:#34d399;font-weight:700">'+fmt(r.valor)+'</span></div>';});html+='</div>';}html+='</div>';});}d.innerHTML=html+'</div>';}
+  window.abrirModal=function(){var d=new Date(),a=H.reduce(function(s,h){return s+h.valor;},0),nom=(d.getDate()<=15?"Primera":"Segunda")+" quincena de "+MESES[d.getMonth()],m=el("modal");m.innerHTML='<div class="modal-bg"><div class="modal-box"><h3 style="margin:0 0 8px;color:#38bdf8;font-size:1.15rem;font-weight:800">🔒 Cerrar Período</h3><p style="margin:0 0 18px;color:#7dd3fc;font-size:.85rem">Total: <strong style="color:#34d399">'+fmt(a)+'</strong> · '+H.length+' días</p><label class="etiqueta">Nombre del período</label><input id="inp-per-nombre" type="text" class="campo" value="'+nom+'" style="margin-bottom:16px"><div class="row-btns"><button class="btn-cancel" onclick="cerrarModal()">Cancelar</button><button class="btn-n" style="flex:2" onclick="confirmarCierre()">✅ Guardar y Cerrar</button></div></div></div>';m.style.display="block";};
+  window.cerrarModal=function(){var m=el("modal");m.innerHTML="";m.style.display="none";};
+  window.confirmarCierre=function(){var nom=el("inp-per-nombre").value.trim();if(!nom){toast("⚠️ Ingresá un nombre");return;}var total=H.reduce(function(s,h){return s+h.valor;},0);P.unshift({id:Date.now(),nombre:nom,fechaCierre:new Date().toLocaleDateString("es-AR"),total:total,dias:H.length,registros:H.slice()});save("mr_p",P);H=[];save("mr_h",H);window._vH=false;cerrarModal();rPA();rPer();toast("🔒 \""+nom+"\" cerrado — "+fmt(total));};
+  window.elimPer=function(id){if(!confirm("¿Borrar este período?"))return;P=P.filter(function(p){return p.id!==id;});save("mr_p",P);if(window._pO===id)window._pO=null;rPer();};
+  el("sel-diam").addEventListener("change",updRango);
+  el("inp-canos").addEventListener("input",updRes);
+  el("inp-horas").addEventListener("input",updRes);
+  el("inp-fecha").value=hoy();
+  rPA(); rPer();
+  window.rPA=rPA; window.rPer=rPer;
+}
+
+// ═══ CATEGORIA CCT ═══
+window.aplicarCategoria=function(){
+  var sel=document.getElementById("sel-categoria");
+  var val=parseFloat(sel.value);
+  var info=document.getElementById("cat-info");
+  if(!val){info.style.display="none";return;}
+  document.getElementById("cfg-vh").value=val.toFixed(2);
+  var txt=sel.options[sel.selectedIndex].text.split("—")[0].trim();
+  info.style.display="block";
+  info.innerHTML="✅ <strong>"+txt+"</strong> — valor hora aplicado en configuración: <strong>$"+val.toLocaleString("es-AR",{minimumFractionDigits:2})+"</strong><br><span style='opacity:.75'>Podés ajustar horas feriado y extras en la sección Configuración</span>";
+};
+
+// ═══ SUELDO ═══
+function gn(id){return parseFloat(el(id).value)||0;}
+var cfgOpen=false;
+function toggleCfg(){cfgOpen=!cfgOpen;el("cfg-panel").style.display=cfgOpen?"block":"none";el("cfg-btn").textContent=cfgOpen?"▲ Ocultar":"▼ Ver";}
+function guardarCfg(){save("configSueldo",{vh:gn("cfg-vh"),anios:gn("cfg-anios"),vhf:gn("cfg-vhf"),pap:gn("cfg-pap"),pa:gn("cfg-pa"),jub:gn("cfg-jub"),ley:gn("cfg-ley"),os:gn("cfg-os"),sind:gn("cfg-sind"),com:gn("cfg-com"),sv:gn("cfg-sv"),seg:gn("cfg-seg")});cfgOpen=false;el("cfg-panel").style.display="none";el("cfg-btn").textContent="▼ Ver";toast("✅ Configuración guardada");}
+(function(){var c=load("configSueldo");if(!c)return;var m={"cfg-vh":"vh","cfg-anios":"anios","cfg-vhf":"vhf","cfg-pap":"pap","cfg-pa":"pa","cfg-jub":"jub","cfg-ley":"ley","cfg-os":"os","cfg-sind":"sind","cfg-com":"com","cfg-sv":"sv","cfg-seg":"seg"};for(var id in m){if(c[m[id]]!==undefined)el(id).value=c[m[id]];}})();
+var historial=load("historialSueldo")||[];
+window.calcularSueldo=function(){
+  var vh=gn("cfg-vh"),anios=gn("cfg-anios"),vhf=gn("cfg-vhf"),pap=gn("cfg-pap"),pa=gn("cfg-pa");
+  var jub=gn("cfg-jub"),ley=gn("cfg-ley"),os=gn("cfg-os"),sind=gn("cfg-sind"),com=gn("cfg-com"),sv=gn("cfg-sv"),seg=gn("cfg-seg");
+  var hn=gn("d-hn"),hf=gn("d-hf"),he50=gn("d-he50"),he100=gn("d-he100"),dPap=gn("d-pap"),anticipo=gn("d-anticipo"),otro=gn("d-otro");
+  var basico=hn*vh,antig=basico*(anios*.01),pctA=anios*.01;
+  var pph=hn>0?pap/hn:0,hComp=vh+pph;
+  var vE50=hComp*(1+pctA)*1.5,vE100=hComp*(1+pctA)*2;
+  var mHF=hf*vhf,mE50=he50*vE50,mE100=he100*vE100;
+  var totalH=basico+antig+pap+mHF+mE50+mE100+pa+dPap;
+  var mJub=totalH*(jub/100),mLey=totalH*(ley/100),mOs=totalH*(os/100),mSind=totalH*(sind/100);
+  var totalD=mJub+mLey+mOs+mSind+com+sv+seg+anticipo+otro;
+  var neto=totalH-totalD;
+  var h='<div class="card"><h2 style="font-size:1rem;font-weight:700;color:#34d399;margin-bottom:14px">📈 Haberes</h2>';
+  h+=L("Básico ("+hn+"h × "+fmt(vh)+")",basico);
+  h+=L("Antigüedad ("+anios+" años · "+anios+"%)",antig);
+  h+=L("PAP — Premio Adicional Producción",pap);
+  if(mHF)h+=L("Horas feriado ("+hf+"h)",mHF);
+  if(mE50)h+=L("Horas extra 50% ("+he50+"h)",mE50);
+  if(mE100)h+=L("Horas extra 100% ("+he100+"h)",mE100);
+  h+=L("Premio Asistencia",pa);
+  if(dPap)h+=L("Premio Asist. por Prod.",dPap);
+  h+='<div class="total-row" style="color:#34d399"><span>TOTAL HABERES</span><span>'+fmt(totalH)+'</span></div></div>';
+  h+='<div class="card"><h2 style="font-size:1rem;font-weight:700;color:#f87171;margin-bottom:14px">📉 Descuentos</h2>';
+  h+=LD("Jubilación ("+jub+"%)",mJub);h+=LD("Ley 19.032 ("+ley+"%)",mLey);h+=LD("Obra Social ("+os+"%)",mOs);h+=LD("Sindicato ("+sind+"%)",mSind);h+=LD("Comedor",com);h+=LD("Seguro Vida y Sep.",sv);h+=LD("Seguro",seg);
+  if(anticipo)h+=LD("Anticipo Quincena",anticipo);if(otro)h+=LD("Otro Descuento",otro);
+  h+='<div class="total-row" style="color:#f87171"><span>TOTAL DESCUENTOS</span><span>'+fmt(totalD)+'</span></div></div>';
+  h+='<div class="neto-box"><div class="neto-lbl">Neto a Cobrar</div><div class="neto-monto">'+fmt(neto)+'</div><div class="neto-sub">Haberes: '+fmt(totalH)+'<br>Descuentos: '+fmt(totalD)+'</div></div>';
+  h+='<button class="btn-verde" style="margin-bottom:14px" onclick="guardarCalculo('+totalH+','+totalD+','+neto+')">💾 Guardar en Historial</button>';
+  el("sueldo-resultado").innerHTML=h;
+  el("sueldo-resultado").scrollIntoView({behavior:"smooth",block:"start"});
+};
+function L(lbl,val){return'<div class="linea"><span class="l-lbl">'+lbl+'</span><span class="l-val">'+fmt(val)+'</span></div>';}
+function LD(lbl,val){return'<div class="linea l-desc"><span class="l-lbl">'+lbl+'</span><span class="l-val">'+fmt(val)+'</span></div>';}
+window.guardarCalculo=function(tH,tD,neto){historial.unshift({id:Date.now(),fecha:new Date().toLocaleDateString("es-AR"),haberes:tH,descuentos:tD,neto:neto});save("historialSueldo",historial);renderHist();toast("💾 Guardado en historial");};
+window.elimHist=function(id){historial=historial.filter(function(h){return h.id!==id;});save("historialSueldo",historial);renderHist();};
+function renderHist(){var d=el("sueldo-historial");if(!historial.length){d.innerHTML="";return;}var h='<div class="card"><h2 style="font-size:1rem;font-weight:700;color:#38bdf8;margin-bottom:14px">🗂 Historial</h2>';historial.forEach(function(s){h+='<div class="hist-row"><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.9rem;margin-bottom:3px">'+s.fecha+'</div><div style="font-size:.73rem;color:#7dd3fc">Hab: '+fmt(s.haberes)+' · Desc: '+fmt(s.descuentos)+'</div><div style="font-weight:900;color:#34d399;font-size:1rem;margin-top:3px">'+fmt(s.neto)+'</div></div><button class="btn-x" onclick="elimHist('+s.id+')" style="flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button></div>';});d.innerHTML=h+'</div>';}
+renderHist();
+</script>
+</body>
+</html>
